@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import {
   ArrowLeftRight,
+  ChevronRight,
   Cloud,
   CloudOff,
   HandCoins,
   Landmark,
   LayoutDashboard,
   LogOut,
+  MoreHorizontal,
   PanelLeftClose,
   PanelLeftOpen,
   RefreshCw,
@@ -135,6 +138,7 @@ export function AppShell() {
   const [autoBillingResult, setAutoBillingResult] = useState<AutoBillingResult | null>(null);
   const [highlightedLoanId, setHighlightedLoanId] = useState<string | null>(null);
   const [highlightedRecurringId, setHighlightedRecurringId] = useState<string | null>(null);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
 
   const handleNavigateToLoan = useCallback((loanId: string) => {
     setActiveTab('loans');
@@ -193,10 +197,18 @@ export function AppShell() {
 
   const activeNavMeta = PRIMARY_NAV.find((item) => item.id === activeTab);
   const collapseLabel = collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar');
+  const mobilePrimaryItems = PRIMARY_NAV.filter((item) =>
+    ['overview', 'accounts', 'transactions', 'intelligence'].includes(item.id)
+  );
+  const mobileSecondaryItems = PRIMARY_NAV.filter((item) =>
+    ['budgets', 'subscriptions', 'loans'].includes(item.id)
+  );
+  const isMoreActive =
+    mobileMoreOpen || ['budgets', 'subscriptions', 'loans', 'settings'].includes(activeTab);
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="ambient-bg relative h-screen overflow-hidden w-full flex flex-col lg:flex-row">
+      <div className="ambient-bg relative h-screen overflow-hidden overflow-x-hidden w-full flex flex-col lg:flex-row">
         {/* Multi-layered Ambient Light Orbs for Glass Refraction (exclusively --accent-color) */}
         <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden z-0">
           <div
@@ -464,23 +476,58 @@ export function AppShell() {
         </motion.aside>
 
         {/* Mobile Sticky Glass Top Header */}
-        <header className="sticky top-0 z-30 lg:hidden flex items-center justify-between px-4 py-3 bg-[#1A1A1C]/75 backdrop-blur-xl border-b border-white/[0.08]">
-          <div className="flex items-center gap-2.5">
+        <header className="sticky top-0 z-40 lg:hidden h-14 px-4 flex items-center justify-between bg-[#1A1A1C]/80 backdrop-blur-xl border-b border-white/[0.08] shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
             <img
               src={logoSrc}
               alt="Growy"
               onError={() => setLogoSrc('/assets/brand/growy-logo.png')}
-              className="h-8 w-8 object-contain select-none"
+              className="h-8 w-8 shrink-0 object-contain select-none"
             />
-            <span className="font-display text-base font-semibold text-white">
+            <span className="font-display text-base font-semibold text-white truncate">
               {t('brand.name')}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
+            <div
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/[0.08] bg-[#2C2C2E]/70 px-2.5 text-[11px] font-medium backdrop-blur-xl"
+              aria-live="polite"
+            >
+              {syncStatus === 'syncing' ? (
+                <RefreshCw className="h-3 w-3 text-dynamic-accent animate-spin shrink-0" />
+              ) : syncStatus === 'offline' ? (
+                <CloudOff className="h-3 w-3 text-coral shrink-0" />
+              ) : syncStatus === 'synced' ? (
+                <Cloud className="h-3 w-3 text-dynamic-accent shrink-0" />
+              ) : (
+                <Cloud className="h-3 w-3 text-[#8E8E93] shrink-0" />
+              )}
+              <span
+                className={
+                  syncStatus === 'offline'
+                    ? 'text-coral'
+                    : syncStatus === 'synced' || syncStatus === 'syncing'
+                      ? 'text-white/90'
+                      : 'text-[#8E8E93]'
+                }
+              >
+                {syncStatus === 'synced'
+                  ? t('sync.synced')
+                  : syncStatus === 'syncing'
+                    ? t('sync.syncing')
+                    : syncStatus === 'offline'
+                      ? t('sync.offline')
+                      : t('sync.localOnly')}
+              </span>
+            </div>
+
             <button
               type="button"
-              onClick={() => setActiveTab('settings')}
+              onClick={() => {
+                setMobileMoreOpen(false);
+                setActiveTab('settings');
+              }}
               aria-label={t('nav.settings')}
               className={`flex h-11 w-11 items-center justify-center rounded-2xl border backdrop-blur-xl transition-all active:scale-95 ${
                 activeTab === 'settings'
@@ -490,21 +537,13 @@ export function AppShell() {
             >
               <Settings className="h-5 w-5" />
             </button>
-            <button
-              type="button"
-              onClick={signOut}
-              aria-label={t('nav.signOut')}
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.08] bg-[#333333]/40 backdrop-blur-xl text-[#B8B8BE] hover:text-coral transition-all active:scale-95"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
           </div>
         </header>
 
         {/* Main Content Canvas */}
         <main
           style={{ scrollbarGutter: 'stable' }}
-          className="relative z-10 flex-1 min-w-0 min-h-0 lg:h-screen overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-8 pt-6 pb-28 lg:py-8"
+          className="relative z-10 flex-1 min-w-0 min-h-0 lg:h-screen overflow-y-auto overflow-x-hidden custom-scrollbar px-4 sm:px-6 lg:px-8 pt-5 pb-24 lg:py-8"
         >
           <div className="mx-auto max-w-7xl w-full">
             <AnimatePresence mode="wait">
@@ -632,32 +671,35 @@ export function AppShell() {
           </div>
         </main>
 
-        {/* iOS-Grade Floating Bottom Dock */}
+        {/* Native Mobile Bottom Tab Bar (5 tabs: Overview, Accounts, Transactions, Growy AI, More) */}
         <motion.nav
           initial={{ y: 16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 28, delay: 0.08 }}
           aria-label="Mobile Navigation"
-          className="lg:hidden fixed bottom-3 inset-x-3 z-40"
+          className="lg:hidden fixed bottom-0 inset-x-0 z-40 backdrop-blur-2xl bg-[#1E1E20]/90 border-t border-white/[0.08] pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_32px_rgba(0,0,0,0.45)]"
         >
-          <div className="grid grid-cols-7 gap-0.5 backdrop-blur-2xl bg-[#242426]/90 border border-white/[0.10] rounded-2xl px-1.5 py-2 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.5)]">
-            {PRIMARY_NAV.map((item) => {
+          <div className="grid grid-cols-5 gap-1 px-2 pt-1.5 pb-1">
+            {mobilePrimaryItems.map((item) => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
+              const isActive = !mobileMoreOpen && activeTab === item.id;
               const mobileLabel = t(item.mobileLabelKey);
               return (
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    setMobileMoreOpen(false);
+                    setActiveTab(item.id);
+                  }}
                   aria-label={t(item.labelKey)}
-                  className="relative flex min-h-[44px] min-w-0 flex-col items-center justify-center rounded-xl px-1 py-1.5 transition-colors active:scale-95"
+                  className="relative flex min-h-[56px] min-w-0 flex-col items-center justify-center rounded-2xl px-1 py-1.5 transition-colors active:scale-95"
                 >
                   {isActive && (
                     <motion.span
                       layoutId="mobile-nav-pill"
                       transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                      className="bg-dynamic-accent-subtle border-dynamic-accent absolute inset-0 rounded-xl border"
+                      className="bg-dynamic-accent-subtle border-dynamic-accent absolute inset-x-1 inset-y-1 rounded-2xl border"
                     />
                   )}
                   <Icon
@@ -675,8 +717,148 @@ export function AppShell() {
                 </button>
               );
             })}
+
+            <button
+              type="button"
+              onClick={() => setMobileMoreOpen((prev) => !prev)}
+              aria-label={t('nav.mobile.more')}
+              aria-expanded={mobileMoreOpen}
+              className="relative flex min-h-[56px] min-w-0 flex-col items-center justify-center rounded-2xl px-1 py-1.5 transition-colors active:scale-95"
+            >
+              {isMoreActive && (
+                <motion.span
+                  layoutId="mobile-nav-pill"
+                  transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  className="bg-dynamic-accent-subtle border-dynamic-accent absolute inset-x-1 inset-y-1 rounded-2xl border"
+                />
+              )}
+              <MoreHorizontal
+                className={`relative z-10 h-5 w-5 shrink-0 ${
+                  isMoreActive ? 'text-dynamic-accent' : 'text-[#B8B8BE]'
+                }`}
+              />
+              <span
+                className={`relative z-10 mt-1 w-full truncate text-center text-[11px] font-medium ${
+                  isMoreActive ? 'text-dynamic-accent' : 'text-[#B8B8BE]'
+                }`}
+              >
+                {t('nav.mobile.more')}
+              </span>
+            </button>
           </div>
         </motion.nav>
+
+        {typeof document !== 'undefined' &&
+          createPortal(
+            <AnimatePresence>
+              {mobileMoreOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  onClick={() => setMobileMoreOpen(false)}
+                  className="fixed inset-0 z-[80] lg:hidden bg-black/65 backdrop-blur-sm flex items-end"
+                >
+                  <motion.div
+                    initial={{ y: '100%' }}
+                    animate={{ y: 0 }}
+                    exit={{ y: '100%' }}
+                    transition={{ type: 'spring', stiffness: 360, damping: 34 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full rounded-t-3xl bg-[#222224]/95 backdrop-blur-2xl border-t border-white/[0.10] px-4 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-4 shadow-[0_-20px_50px_rgba(0,0,0,0.6)] max-h-[85dvh] overflow-y-auto"
+                  >
+                    <div className="mx-auto h-1.5 w-10 rounded-full bg-white/20" />
+
+                    {/* User Profile Card */}
+                    <div className="flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-black/30 p-3.5">
+                      <div className="bg-dynamic-accent-soft text-dynamic-accent border-dynamic-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border text-sm font-display font-semibold">
+                        {getInitials(user?.fullName ?? 'G')}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-white">{user?.fullName}</p>
+                        <p className="truncate text-xs text-[#B8B8BE]">{user?.email}</p>
+                      </div>
+                    </div>
+
+                    {/* Secondary Navigation */}
+                    <div className="space-y-1.5">
+                      {mobileSecondaryItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeTab === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveTab(item.id);
+                              setMobileMoreOpen(false);
+                            }}
+                            className={`flex w-full min-h-[48px] items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-all active:scale-[0.98] ${
+                              isActive
+                                ? 'bg-dynamic-accent-subtle border-dynamic-accent text-white'
+                                : 'border-white/[0.06] bg-white/[0.03] text-[#E5E5EA] hover:bg-white/[0.06]'
+                            }`}
+                          >
+                            <span className="flex items-center gap-3 min-w-0">
+                              <Icon
+                                className={`h-5 w-5 shrink-0 ${
+                                  isActive ? 'text-dynamic-accent' : 'text-[#B8B8BE]'
+                                }`}
+                              />
+                              <span className="text-[15px] font-medium truncate">
+                                {t(item.labelKey)}
+                              </span>
+                            </span>
+                            <ChevronRight className="h-4 w-4 text-[#8E8E93] shrink-0" />
+                          </button>
+                        );
+                      })}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab('settings');
+                          setMobileMoreOpen(false);
+                        }}
+                        className={`flex w-full min-h-[48px] items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-all active:scale-[0.98] ${
+                          activeTab === 'settings'
+                            ? 'bg-dynamic-accent-subtle border-dynamic-accent text-white'
+                            : 'border-white/[0.06] bg-white/[0.03] text-[#E5E5EA] hover:bg-white/[0.06]'
+                        }`}
+                      >
+                        <span className="flex items-center gap-3 min-w-0">
+                          <Settings
+                            className={`h-5 w-5 shrink-0 ${
+                              activeTab === 'settings' ? 'text-dynamic-accent' : 'text-[#B8B8BE]'
+                            }`}
+                          />
+                          <span className="text-[15px] font-medium truncate">
+                            {t('nav.settings')}
+                          </span>
+                        </span>
+                        <ChevronRight className="h-4 w-4 text-[#8E8E93] shrink-0" />
+                      </button>
+                    </div>
+
+                    {/* Sign Out */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMoreOpen(false);
+                        signOut();
+                      }}
+                      className="flex w-full min-h-[48px] items-center justify-center gap-2 rounded-2xl border border-coral/25 bg-coral/10 px-4 py-3 text-[15px] font-medium text-coral transition-all active:scale-[0.98]"
+                    >
+                      <LogOut className="h-4 w-4 shrink-0" />
+                      <span>{t('nav.signOut')}</span>
+                    </button>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
 
         <AutoBillingToast
           items={autoBillingResult?.summaryItems ?? null}

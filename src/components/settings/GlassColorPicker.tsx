@@ -254,7 +254,7 @@ export function GlassColorPicker({ value, onChange, label }: GlassColorPickerPro
                 value={hexDraft}
                 onChange={(e) => handleHexInput(e.target.value)}
                 aria-label="Hex color code"
-                className="focus-dynamic-accent w-full rounded-xl bg-black/30 border border-white/[0.08] px-3 py-1.5 font-mono text-xs uppercase text-white outline-none transition-colors"
+                className="focus-dynamic-accent w-full rounded-xl bg-black/30 border border-white/[0.08] px-3 py-1.5 font-mono text-base sm:text-xs uppercase text-white outline-none transition-colors"
               />
             </div>
           </motion.div>

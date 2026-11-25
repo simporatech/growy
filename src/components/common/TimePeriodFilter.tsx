@@ -43,12 +43,12 @@ export function TimePeriodFilter({
   const isFiltered = value.preset !== defaultPreset;
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2.5 w-full sm:w-auto">
       <button
         type="button"
         onClick={() => setModalOpen(true)}
         aria-expanded={modalOpen}
-        className={`h-11 inline-flex items-center justify-between gap-2 rounded-xl backdrop-blur-xl border px-3.5 text-sm font-medium transition-all active:scale-[0.98] ${
+        className={`h-11 w-full sm:w-auto inline-flex items-center justify-between gap-2 rounded-xl backdrop-blur-xl border px-3.5 text-sm font-medium transition-all active:scale-[0.98] ${
           isFiltered
             ? 'bg-dynamic-accent-subtle border-dynamic-accent text-white'
             : 'bg-[#333333]/35 border-white/[0.08] text-white hover:border-white/[0.18]'
@@ -66,7 +66,7 @@ export function TimePeriodFilter({
       </button>
 
       {value.preset === 'custom' && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto [&>div]:w-full sm:[&>div]:w-auto [&>div>button]:w-full sm:[&>div>button]:w-auto">
           <GlassDatePicker
             label={t('period.fromLabel')}
             inlineLabel={`${t('period.fromLabel')}:`}

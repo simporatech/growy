@@ -550,19 +550,20 @@ export function SettingsView() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => setDeleteModalOpen(false)}
-            className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md"
           >
             <motion.div
               role="dialog"
               aria-modal="true"
               aria-labelledby="delete-account-title"
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              exit={{ opacity: 0, scale: 0.96, y: 24 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass-card w-full max-w-md p-6 sm:p-7 space-y-5"
+              className="glass-card w-full sm:max-w-md max-h-[90dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl p-6 pt-3 sm:p-7 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 space-y-5"
             >
+              <div className="sm:hidden mx-auto h-1.5 w-10 rounded-full bg-white/20" />
               <div className="flex items-start gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-coral/30 bg-coral/10">
                   <AlertTriangle className="h-5 w-5 text-coral" />
@@ -592,7 +593,7 @@ export function SettingsView() {
                   placeholder={t('settings.deleteConfirmPlaceholder')}
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
-                  className="w-full rounded-xl bg-black/30 border border-white/[0.1] px-3.5 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-coral/50 focus:ring-1 focus:ring-coral/30"
+                  className="w-full rounded-xl bg-black/30 border border-white/[0.1] px-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-coral/50 focus:ring-1 focus:ring-coral/30"
                 />
               </div>
 
@@ -630,19 +631,20 @@ export function SettingsView() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => !isImporting && setPendingBackupFile(null)}
-            className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md"
           >
             <motion.div
               role="dialog"
               aria-modal="true"
               aria-labelledby="restore-backup-title"
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              exit={{ opacity: 0, scale: 0.96, y: 24 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass-card w-full max-w-md p-6 sm:p-7 space-y-5"
+              className="glass-card w-full sm:max-w-md max-h-[90dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl p-6 pt-3 sm:p-7 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 space-y-5"
             >
+              <div className="sm:hidden mx-auto h-1.5 w-10 rounded-full bg-white/20" />
               <div className="flex items-start gap-3.5">
                 <div className="bg-dynamic-accent-soft border-dynamic-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border">
                   <Upload className="text-dynamic-accent h-5 w-5" />
@@ -698,19 +700,20 @@ export function SettingsView() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => setClearModalOpen(false)}
-            className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md"
           >
             <motion.div
               role="dialog"
               aria-modal="true"
               aria-labelledby="clear-data-title"
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              exit={{ opacity: 0, scale: 0.96, y: 24 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass-card w-full max-w-md p-6 sm:p-7 space-y-5"
+              className="glass-card w-full sm:max-w-md max-h-[90dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl p-6 pt-3 sm:p-7 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 space-y-5"
             >
+              <div className="sm:hidden mx-auto h-1.5 w-10 rounded-full bg-white/20" />
               <div className="flex items-start gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-coral/30 bg-coral/10">
                   <RotateCcw className="h-5 w-5 text-coral" />
@@ -740,7 +743,7 @@ export function SettingsView() {
                   placeholder={t('settings.clearConfirmPlaceholder')}
                   value={clearConfirmText}
                   onChange={(e) => setClearConfirmText(e.target.value)}
-                  className="w-full h-11 rounded-xl bg-black/30 border border-white/[0.1] px-3.5 text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-coral/50 focus:ring-1 focus:ring-coral/30"
+                  className="w-full h-11 rounded-xl bg-black/30 border border-white/[0.1] px-3.5 text-base sm:text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-coral/50 focus:ring-1 focus:ring-coral/30"
                 />
               </div>
 

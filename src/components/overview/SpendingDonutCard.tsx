@@ -84,6 +84,7 @@ export function SpendingDonutCard({
                     className="transition-all duration-200 cursor-pointer"
                     onMouseEnter={() => setHoveredId(seg.id)}
                     onMouseLeave={() => setHoveredId(null)}
+                    onClick={() => setHoveredId((prev) => (prev === seg.id ? null : seg.id))}
                   />
                 );
               })}
@@ -114,7 +115,8 @@ export function SpendingDonutCard({
                 key={slice.id}
                 onMouseEnter={() => setHoveredId(slice.id)}
                 onMouseLeave={() => setHoveredId(null)}
-                className="flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 hover:bg-white/[0.04] transition-colors cursor-default"
+                onClick={() => setHoveredId((prev) => (prev === slice.id ? null : slice.id))}
+                className="flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 hover:bg-white/[0.04] transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span

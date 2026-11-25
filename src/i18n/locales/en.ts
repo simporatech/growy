@@ -49,8 +49,9 @@ export const en = {
   'nav.mobile.budgets': 'Budgets',
   'nav.mobile.subscriptions': 'Recurring',
   'nav.mobile.loans': 'Loans',
-  'nav.mobile.intelligence': 'Advisor',
+  'nav.mobile.intelligence': 'Growy AI',
   'nav.mobile.overview': 'Overview',
+  'nav.mobile.more': 'More',
 
   // Placeholders
   'placeholder.comingSoon': 'Module ready for setup',

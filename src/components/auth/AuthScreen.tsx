@@ -328,7 +328,7 @@ export function AuthScreen() {
                             placeholder={t('auth.fullNamePlaceholder')}
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className="focus-dynamic-accent w-full rounded-xl bg-black/25 border border-white/[0.08] pl-10 pr-3.5 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200"
+                            className="focus-dynamic-accent w-full rounded-xl bg-black/25 border border-white/[0.08] pl-10 pr-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200"
                           />
                         </div>
                       </div>
@@ -349,7 +349,7 @@ export function AuthScreen() {
                       placeholder={t('auth.emailPlaceholder')}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="focus-dynamic-accent w-full rounded-xl bg-black/25 border border-white/[0.08] pl-10 pr-3.5 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200"
+                      className="focus-dynamic-accent w-full rounded-xl bg-black/25 border border-white/[0.08] pl-10 pr-3.5 py-2.5 text-base sm:text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200"
                     />
                   </div>
                 </motion.div>
@@ -367,7 +367,7 @@ export function AuthScreen() {
                       placeholder="••••••••"
                       value={pin}
                       onChange={(e) => setPin(e.target.value)}
-                      className="focus-dynamic-accent w-full rounded-xl bg-black/25 border border-white/[0.08] pl-10 pr-10 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200"
+                      className="focus-dynamic-accent w-full rounded-xl bg-black/25 border border-white/[0.08] pl-10 pr-10 py-2.5 text-base sm:text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200"
                     />
                     <button
                       type="button"

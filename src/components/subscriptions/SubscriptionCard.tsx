@@ -190,7 +190,7 @@ export function SubscriptionCard({
             onClick={() => onEdit(subscription)}
             aria-label={t('subs.edit')}
             title={t('subs.edit')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:bg-white/[0.1] hover:text-white active:scale-95 transition-all"
+            className="flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:bg-white/[0.1] hover:text-white active:scale-95 transition-all"
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -200,7 +200,7 @@ export function SubscriptionCard({
             onClick={() => onDelete(subscription)}
             aria-label={t('subs.delete')}
             title={t('subs.delete')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:border-coral/30 hover:bg-coral/15 hover:text-coral active:scale-95 transition-all"
+            className="flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:border-coral/30 hover:bg-coral/15 hover:text-coral active:scale-95 transition-all"
           >
             <Trash2 className="h-4 w-4" />
           </button>

@@ -289,32 +289,35 @@ export function LoanPaymentModal({
             if (accountOpen || interestCategoryOpen) return;
             onClose();
           }}
-          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+          className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md"
         >
           <motion.div
             role="dialog"
             aria-modal="true"
             aria-labelledby="loan-payment-title"
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            exit={{ opacity: 0, scale: 0.96, y: 24 }}
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
             onClick={(e) => e.stopPropagation()}
-            className="glass-card w-full max-w-md max-h-[88vh] flex flex-col overflow-hidden"
+            className="glass-card w-full sm:max-w-md max-h-[90dvh] sm:max-h-[88vh] rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] sm:pb-0"
           >
             {/* Header */}
-            <div className="shrink-0 flex items-center justify-between gap-3 px-6 py-4 border-b border-white/[0.08]">
-              <h2 id="loan-payment-title" className="font-display text-lg font-semibold text-white">
-                {t('loanPayModal.title')}
-              </h2>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close"
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] hover:text-white transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+            <div className="shrink-0 px-6 pt-3 sm:pt-4 pb-4 border-b border-white/[0.08] space-y-2">
+              <div className="sm:hidden mx-auto h-1.5 w-10 rounded-full bg-white/20" />
+              <div className="flex items-center justify-between gap-3">
+                <h2 id="loan-payment-title" className="font-display text-lg font-semibold text-white">
+                  {t('loanPayModal.title')}
+                </h2>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] hover:text-white transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
@@ -406,7 +409,7 @@ export function LoanPaymentModal({
                       value={principalInput}
                       onChange={(e) => handlePrincipalChange(e.target.value)}
                       placeholder="0.00"
-                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white outline-none tabular-nums"
+                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white outline-none tabular-nums"
                     />
                   </div>
                   <div>
@@ -424,7 +427,7 @@ export function LoanPaymentModal({
                       value={interestInput}
                       onChange={(e) => handleInterestChange(e.target.value)}
                       placeholder="0.00"
-                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white outline-none tabular-nums"
+                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white outline-none tabular-nums"
                     />
                   </div>
                 </div>
@@ -445,7 +448,7 @@ export function LoanPaymentModal({
                       min="0"
                       value={accountTotalInput}
                       onChange={(e) => setAccountTotalInput(e.target.value)}
-                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white outline-none tabular-nums"
+                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white outline-none tabular-nums"
                     />
                   </div>
                 )}
@@ -500,7 +503,7 @@ export function LoanPaymentModal({
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     placeholder={t('loanPayModal.notePlaceholder')}
-                    className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white placeholder:text-white/30 outline-none"
+                    className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white placeholder:text-white/30 outline-none"
                   />
                 </div>
               </div>

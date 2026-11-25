@@ -193,19 +193,20 @@ export function GlassDatePicker({ label, value, onChange, inlineLabel }: GlassDa
                   e.stopPropagation();
                   setOpen(false);
                 }}
-                className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/65 backdrop-blur-md"
+                className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65 backdrop-blur-md"
               >
                 <motion.div
                   role="dialog"
                   aria-modal="true"
                   aria-label={label}
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  initial={{ opacity: 0, scale: 0.96, y: 24 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  exit={{ opacity: 0, scale: 0.96, y: 24 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="glass-card w-full max-w-sm overflow-hidden p-5 space-y-4 shadow-[0_28px_64px_-16px_rgba(0,0,0,0.75)]"
+                  className="glass-card w-full sm:max-w-sm max-h-[90dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl p-5 pt-3 sm:pt-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:pb-5 space-y-4 shadow-[0_28px_64px_-16px_rgba(0,0,0,0.75)]"
                 >
+                  <div className="sm:hidden mx-auto h-1.5 w-10 rounded-full bg-white/20" />
                   {/* Top Title + Close */}
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-display text-base font-semibold text-white truncate">
@@ -218,7 +219,7 @@ export function GlassDatePicker({ label, value, onChange, inlineLabel }: GlassDa
                         setOpen(false);
                       }}
                       aria-label="Close"
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] hover:text-white transition-colors"
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] hover:text-white transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </button>

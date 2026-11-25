@@ -13,6 +13,7 @@
     color-scheme: dark;
     background-color: #1A1A1C;
     color: #FFFFFF;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   }
@@ -21,6 +22,7 @@
     margin: 0;
     min-height: 100vh;
     background-color: #1A1A1C;
+    overflow-x: hidden;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -97,6 +99,15 @@
 
   .group:focus-within .group-focus-dynamic-accent {
     color: var(--accent-color);
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 

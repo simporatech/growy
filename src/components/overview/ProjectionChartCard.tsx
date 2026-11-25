@@ -176,7 +176,7 @@ export function ProjectionChartCard({
         </div>
 
         {/* 3 Concise Summary KPI Pills */}
-        <div className="flex flex-wrap items-center gap-2.5 text-xs font-medium tabular-nums">
+        <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-2.5 text-xs font-medium tabular-nums">
           <div className="rounded-xl border border-dynamic-accent/40 bg-dynamic-accent-subtle px-3 py-2">
             <span className="text-[#B8B8BE]">{t('overview.projRealEnd')}: </span>
             <span className="font-semibold text-dynamic-accent">
@@ -224,8 +224,26 @@ export function ProjectionChartCard({
       <div className="relative w-full">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-64 overflow-visible select-none"
+          className="w-full h-56 sm:h-64 overflow-visible select-none touch-pan-y"
           onMouseLeave={() => setHoverIdx(null)}
+          onTouchStart={(e) => {
+            const touch = e.touches[0];
+            if (!touch || coords.length === 0) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const relX = ((touch.clientX - rect.left) / Math.max(1, rect.width)) * width;
+            const clamped = Math.max(padLeft, Math.min(width - padRight, relX));
+            const ratio = (clamped - padLeft) / Math.max(1, chartW);
+            setHoverIdx(Math.round(ratio * (coords.length - 1)));
+          }}
+          onTouchMove={(e) => {
+            const touch = e.touches[0];
+            if (!touch || coords.length === 0) return;
+            const rect = e.currentTarget.getBoundingClientRect();
+            const relX = ((touch.clientX - rect.left) / Math.max(1, rect.width)) * width;
+            const clamped = Math.max(padLeft, Math.min(width - padRight, relX));
+            const ratio = (clamped - padLeft) / Math.max(1, chartW);
+            setHoverIdx(Math.round(ratio * (coords.length - 1)));
+          }}
         >
           <defs>
             <linearGradient id={realGradId} x1="0" y1="0" x2="0" y2="1">
@@ -362,6 +380,7 @@ export function ProjectionChartCard({
                 height={chartH + padBottom}
                 fill="transparent"
                 onMouseEnter={() => setHoverIdx(idx)}
+                onClick={() => setHoverIdx((prev) => (prev === idx ? null : idx))}
               />
             );
           })}

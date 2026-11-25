@@ -331,32 +331,35 @@ export function LoanModal({
             if (directionOpen || currencyOpen || accountOpen || categoryOpen || iconOpen) return;
             onClose();
           }}
-          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+          className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md"
         >
           <motion.div
             role="dialog"
             aria-modal="true"
             aria-labelledby="loan-modal-title"
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            initial={{ opacity: 0, scale: 0.96, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            exit={{ opacity: 0, scale: 0.96, y: 24 }}
             transition={{ type: 'spring', stiffness: 380, damping: 32 }}
             onClick={(e) => e.stopPropagation()}
-            className="glass-card w-full max-w-xl max-h-[88vh] flex flex-col overflow-hidden"
+            className="glass-card w-full sm:max-w-xl max-h-[90dvh] sm:max-h-[88vh] rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] sm:pb-0"
           >
             {/* Sticky Top Header */}
-            <div className="shrink-0 flex items-center justify-between gap-3 px-6 py-4 border-b border-white/[0.08]">
-              <h2 id="loan-modal-title" className="font-display text-xl font-semibold text-white">
-                {editingLoan ? t('loanModal.editTitle') : t('loanModal.newTitle')}
-              </h2>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close"
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] hover:text-white transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+            <div className="shrink-0 px-6 pt-3 sm:pt-4 pb-4 border-b border-white/[0.08] space-y-2">
+              <div className="sm:hidden mx-auto h-1.5 w-10 rounded-full bg-white/20" />
+              <div className="flex items-center justify-between gap-3">
+                <h2 id="loan-modal-title" className="font-display text-xl font-semibold text-white">
+                  {editingLoan ? t('loanModal.editTitle') : t('loanModal.newTitle')}
+                </h2>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] hover:text-white transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
@@ -431,7 +434,7 @@ export function LoanModal({
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder={t('loanModal.titlePlaceholder')}
-                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white placeholder:text-white/30 outline-none transition-all"
+                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white placeholder:text-white/30 outline-none transition-all"
                     />
                   </div>
 
@@ -448,7 +451,7 @@ export function LoanModal({
                       value={counterparty}
                       onChange={(e) => setCounterparty(e.target.value)}
                       placeholder={t('loanModal.counterpartyPlaceholder')}
-                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white placeholder:text-white/30 outline-none transition-all"
+                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white placeholder:text-white/30 outline-none transition-all"
                     />
                   </div>
                 </div>
@@ -470,7 +473,7 @@ export function LoanModal({
                       value={principalInput}
                       onChange={(e) => setPrincipalInput(e.target.value)}
                       placeholder="0.00"
-                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white placeholder:text-white/30 outline-none tabular-nums transition-all"
+                      className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white placeholder:text-white/30 outline-none tabular-nums transition-all"
                     />
                   </div>
 
@@ -651,7 +654,7 @@ export function LoanModal({
                       onChange={(e) => setColor(e.target.value)}
                       maxLength={7}
                       aria-label={t('loanModal.colorLabel')}
-                      className="focus-dynamic-accent h-9 w-24 rounded-xl bg-black/30 border border-white/[0.08] px-2.5 font-mono text-xs text-white outline-none"
+                      className="focus-dynamic-accent h-9 w-24 rounded-xl bg-black/30 border border-white/[0.08] px-2.5 font-mono text-base sm:text-xs text-white outline-none"
                     />
                   </div>
                 </div>
@@ -670,7 +673,7 @@ export function LoanModal({
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder={t('loanModal.notesPlaceholder')}
-                    className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-sm text-white placeholder:text-white/30 outline-none transition-all"
+                    className="focus-dynamic-accent w-full h-12 rounded-xl bg-black/30 border border-white/[0.08] px-3.5 text-base sm:text-sm text-white placeholder:text-white/30 outline-none transition-all"
                   />
                 </div>
               </div>

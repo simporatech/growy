@@ -61,7 +61,7 @@ export function TransactionRow({
       className="group flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5 hover:bg-white/[0.03] transition-colors"
     >
       {/* Left: Icon + Title + Metadata */}
-      <div className="flex items-center gap-3.5 min-w-0">
+      <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
         {isTransfer ? (
           <div className="bg-dynamic-accent-soft border-dynamic-accent text-dynamic-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border">
             <ArrowLeftRight className="h-5 w-5" />

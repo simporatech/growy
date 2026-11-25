@@ -51,8 +51,9 @@ export const es: Record<TranslationKey, string> = {
   'nav.mobile.budgets': 'Metas',
   'nav.mobile.subscriptions': 'Recurr.',
   'nav.mobile.loans': 'Préstamos',
-  'nav.mobile.intelligence': 'Asesor',
+  'nav.mobile.intelligence': 'Growy AI',
   'nav.mobile.overview': 'Resumen',
+  'nav.mobile.more': 'Más',
 
   // Placeholders
   'placeholder.comingSoon': 'Módulo listo para configurar',

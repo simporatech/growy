@@ -121,7 +121,7 @@ export function LoanCard({
             onClick={() => onEdit(loan)}
             aria-label={t('loans.edit')}
             title={t('loans.edit')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:bg-white/[0.1] hover:text-white active:scale-95 transition-all"
+            className="flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:bg-white/[0.1] hover:text-white active:scale-95 transition-all"
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -130,7 +130,7 @@ export function LoanCard({
             onClick={() => onDelete(loan)}
             aria-label={t('loans.delete')}
             title={t('loans.delete')}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:border-coral/30 hover:bg-coral/15 hover:text-coral active:scale-95 transition-all"
+            className="flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] opacity-80 hover:opacity-100 hover:border-coral/30 hover:bg-coral/15 hover:text-coral active:scale-95 transition-all"
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -199,7 +199,7 @@ export function LoanCard({
             type="button"
             onClick={() => onRecordPayment(loan)}
             style={{ color: 'var(--accent-foreground)' }}
-            className="bg-dynamic-accent inline-flex h-10 items-center gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
+            className="bg-dynamic-accent w-full sm:w-auto inline-flex h-11 sm:h-10 items-center justify-center gap-1.5 rounded-xl px-3.5 text-[13px] font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
           >
             <Plus className="h-4 w-4 stroke-[2.5]" />
             <span>{t('loans.recordPayment')}</span>

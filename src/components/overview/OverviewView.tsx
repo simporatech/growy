@@ -264,7 +264,7 @@ export function OverviewView({ onNavigate }: OverviewViewProps) {
   return (
     <div className="max-w-7xl mx-auto w-full space-y-6">
       {/* Executive Command Header */}
-      <header className="glass-card relative z-30 p-6 sm:p-7 rounded-3xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+      <header className="glass-card relative z-30 p-5 sm:p-7 rounded-3xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-5">
         <div className="min-w-0">
           <p className="text-sm font-medium capitalize text-[#B8B8BE]">{formattedDate}</p>
           <h1 className="mt-1 font-display text-2xl sm:text-3xl font-bold tracking-tight text-white truncate">
@@ -272,30 +272,32 @@ export function OverviewView({ onNavigate }: OverviewViewProps) {
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <TimePeriodFilter
-            value={periodValue}
-            onChange={setPeriodValue}
-            defaultPreset="this_month"
-          />
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 w-full lg:w-auto shrink-0">
+          <div className="col-span-2 sm:col-span-1 [&>*]:w-full sm:[&>*]:w-auto">
+            <TimePeriodFilter
+              value={periodValue}
+              onChange={setPeriodValue}
+              defaultPreset="this_month"
+            />
+          </div>
 
           <button
             type="button"
             onClick={() => onNavigate('intelligence')}
-            className="h-11 inline-flex items-center gap-2 rounded-xl border border-dynamic-accent bg-dynamic-accent-subtle px-4 text-sm font-medium text-dynamic-accent hover:bg-dynamic-accent-soft active:scale-[0.98] transition-all"
+            className="h-11 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-dynamic-accent bg-dynamic-accent-subtle px-4 text-sm font-medium text-dynamic-accent hover:bg-dynamic-accent-soft active:scale-[0.98] transition-all"
           >
             <Sparkles className="h-4 w-4 shrink-0" />
-            <span>{t('overview.askGrowy')}</span>
+            <span className="truncate">{t('overview.askGrowy')}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setTxModalOpen(true)}
             style={{ color: 'var(--accent-foreground)' }}
-            className="bg-dynamic-accent h-11 inline-flex items-center gap-2 rounded-xl px-4 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
+            className="bg-dynamic-accent h-11 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all"
           >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
-            <span>{t('transactions.record')}</span>
+            <Plus className="h-4 w-4 shrink-0 stroke-[2.5]" />
+            <span className="truncate">{t('transactions.record')}</span>
           </button>
         </div>
       </header>
@@ -303,7 +305,7 @@ export function OverviewView({ onNavigate }: OverviewViewProps) {
       {/* 4 Hero KPI Bento Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* 1. True Net Worth */}
-        <div className="glass-card p-5 flex flex-col justify-between gap-3">
+        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium text-[#B8B8BE]">{t('overview.netWorth')}</span>
             <div className="bg-dynamic-accent-soft text-dynamic-accent flex h-8 w-8 items-center justify-center rounded-xl">
@@ -334,7 +336,7 @@ export function OverviewView({ onNavigate }: OverviewViewProps) {
         </div>
 
         {/* 2. Available Cash */}
-        <div className="glass-card p-5 flex flex-col justify-between gap-3">
+        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium text-[#B8B8BE]">
               {t('overview.availableCash')}
@@ -352,7 +354,7 @@ export function OverviewView({ onNavigate }: OverviewViewProps) {
         </div>
 
         {/* 3. Period Net Balance */}
-        <div className="glass-card p-5 flex flex-col justify-between gap-3">
+        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium text-[#B8B8BE]">
               {t('overview.periodNetBalance')}
@@ -381,7 +383,7 @@ export function OverviewView({ onNavigate }: OverviewViewProps) {
         </div>
 
         {/* 4. Safe to Spend */}
-        <div className="glass-card p-5 flex flex-col justify-between gap-3">
+        <div className="glass-card p-4 sm:p-5 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-medium text-[#B8B8BE]">
               {t('overview.safeToSpend')}

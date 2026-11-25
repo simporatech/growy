@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, ChevronUp, RotateCcw, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, RotateCcw, Sparkles, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCurrency } from '../../context/CurrencyContext';
 import { useLanguage } from '../../i18n/LanguageContext';
@@ -192,7 +193,7 @@ export function GrowyIntelligenceView({ onNavigate }: GrowyIntelligenceViewProps
   const isBusy = Boolean(thinkingMsgId);
 
   return (
-    <div className="max-w-5xl mx-auto w-full flex flex-col h-[calc(100vh-8.5rem)] lg:h-[calc(100vh-4rem)] gap-4">
+    <div className="max-w-5xl mx-auto w-full flex flex-col h-[calc(100dvh-10.25rem)] lg:h-[calc(100vh-4rem)] gap-3 sm:gap-4">
       {/* Compact Glass Header */}
       <header className="glass-card shrink-0 rounded-3xl px-5 py-4 sm:px-6 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3.5 min-w-0">
@@ -263,20 +264,21 @@ export function GrowyIntelligenceView({ onNavigate }: GrowyIntelligenceViewProps
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pb-0.5 sm:pb-0">
           {followUpPrompts.map((prompt) => (
             <button
               key={prompt.id}
               type="button"
               disabled={isBusy}
               onClick={() => handleSelectPrompt(prompt.id)}
-              className="min-h-[40px] rounded-xl border border-dynamic-accent/40 bg-dynamic-accent-subtle px-3.5 py-2 text-left text-[13px] font-medium text-white hover:bg-dynamic-accent-soft hover:border-dynamic-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
+              className="shrink-0 sm:shrink min-h-[44px] sm:min-h-[40px] rounded-xl border border-dynamic-accent/40 bg-dynamic-accent-subtle px-3.5 py-2 text-left text-[13px] font-medium text-white whitespace-nowrap sm:whitespace-normal hover:bg-dynamic-accent-soft hover:border-dynamic-accent active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
             >
               {prompt.label}
             </button>
           ))}
         </div>
 
+        {/* Desktop/Tablet Inline Drawer */}
         <AnimatePresence initial={false}>
           {showAllPrompts && (
             <motion.div
@@ -284,7 +286,7 @@ export function GrowyIntelligenceView({ onNavigate }: GrowyIntelligenceViewProps
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden"
+              className="hidden sm:block overflow-hidden"
             >
               <div className="pt-3 border-t border-white/[0.08] space-y-2.5">
                 {/* Topic Filter Pills */}
@@ -327,6 +329,85 @@ export function GrowyIntelligenceView({ onNavigate }: GrowyIntelligenceViewProps
           )}
         </AnimatePresence>
       </footer>
+
+      {/* Mobile Bottom-Sheet All Questions Drawer */}
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {showAllPrompts && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                onClick={() => setShowAllPrompts(false)}
+                className="fixed inset-0 z-[80] sm:hidden bg-black/65 backdrop-blur-sm flex items-end"
+              >
+                <motion.div
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ type: 'spring', stiffness: 360, damping: 34 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full rounded-t-3xl bg-[#222224]/95 backdrop-blur-2xl border-t border-white/[0.10] px-4 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-4 max-h-[82dvh] flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.6)]"
+                >
+                  <div className="mx-auto h-1.5 w-10 rounded-full bg-white/20 shrink-0" />
+                  <div className="flex items-center justify-between gap-3 shrink-0">
+                    <h2 className="font-display text-lg font-semibold text-white">
+                      {t('intelligence.allQuestions')}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllPrompts(false)}
+                      aria-label="Close"
+                      className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04] text-[#B8B8BE] hover:text-white transition-colors"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="flex overflow-x-auto no-scrollbar gap-1.5 shrink-0 pb-0.5">
+                    {topicTabs.map((tab) => {
+                      const active = activeTopic === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setActiveTopic(tab.id)}
+                          className={`shrink-0 min-h-[36px] rounded-full px-3.5 py-1.5 text-xs font-medium transition-all ${
+                            active
+                              ? 'bg-dynamic-accent-soft border border-dynamic-accent text-dynamic-accent'
+                              : 'border border-white/[0.08] bg-white/[0.03] text-[#B8B8BE]'
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-0.5">
+                    {filteredDrawerPrompts.map((prompt) => (
+                      <button
+                        key={prompt.id}
+                        type="button"
+                        disabled={isBusy}
+                        onClick={() => {
+                          setShowAllPrompts(false);
+                          handleSelectPrompt(prompt.id);
+                        }}
+                        className="w-full min-h-[48px] rounded-2xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-left text-sm font-medium text-[#E5E5EA] active:scale-[0.98] transition-all disabled:opacity-50"
+                      >
+                        {prompt.label}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </div>
   );
 }

@@ -620,11 +620,11 @@ export function BudgetsView() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('budgets.searchPlaceholder')}
-                className="focus-dynamic-accent w-full h-11 rounded-xl bg-[#333333]/35 backdrop-blur-xl border border-white/[0.08] pl-10 pr-4 text-sm text-white placeholder:text-[#B8B8BE]/60 outline-none transition-all"
+                className="focus-dynamic-accent w-full h-11 rounded-xl bg-[#333333]/35 backdrop-blur-xl border border-white/[0.08] pl-10 pr-4 text-base sm:text-sm text-white placeholder:text-[#B8B8BE]/60 outline-none transition-all"
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="grid grid-cols-1 sm:flex sm:flex-wrap items-center gap-3">
               <TimePeriodFilter
                 value={periodValue}
                 onChange={setPeriodValue}
@@ -796,19 +796,20 @@ export function BudgetsView() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.18 }}
                 onClick={() => setDeletingCategory(null)}
-                className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+                className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md"
               >
             <motion.div
               role="dialog"
               aria-modal="true"
               aria-labelledby="delete-category-title"
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              exit={{ opacity: 0, scale: 0.96, y: 24 }}
               transition={{ type: 'spring', stiffness: 400, damping: 32 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass-card w-full max-w-md p-6 sm:p-7 space-y-5"
+              className="glass-card w-full sm:max-w-md max-h-[90dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl p-6 pt-3 sm:p-7 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:pb-7 space-y-5"
             >
+              <div className="sm:hidden mx-auto h-1.5 w-10 rounded-full bg-white/20" />
               <div className="flex items-start gap-3.5">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-coral/30 bg-coral/10">
                   <AlertTriangle className="h-5 w-5 text-coral" />

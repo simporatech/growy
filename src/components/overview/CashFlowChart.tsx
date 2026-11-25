@@ -118,8 +118,26 @@ export function CashFlowChart({
         <div className="relative w-full">
           <svg
             viewBox={`0 0 ${width} ${height}`}
-            className="w-full h-52 sm:h-56 overflow-visible select-none"
+            className="w-full h-52 sm:h-56 overflow-visible select-none touch-pan-y"
             onMouseLeave={() => setHoverIdx(null)}
+            onTouchStart={(e) => {
+              const touch = e.touches[0];
+              if (!touch || points.length === 0) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              const relX = ((touch.clientX - rect.left) / Math.max(1, rect.width)) * width;
+              const clamped = Math.max(padX, Math.min(width - padX, relX));
+              const ratio = (clamped - padX) / Math.max(1, chartW);
+              setHoverIdx(Math.round(ratio * (points.length - 1)));
+            }}
+            onTouchMove={(e) => {
+              const touch = e.touches[0];
+              if (!touch || points.length === 0) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              const relX = ((touch.clientX - rect.left) / Math.max(1, rect.width)) * width;
+              const clamped = Math.max(padX, Math.min(width - padX, relX));
+              const ratio = (clamped - padX) / Math.max(1, chartW);
+              setHoverIdx(Math.round(ratio * (points.length - 1)));
+            }}
           >
             <defs>
               <linearGradient id={gradientIncomeId} x1="0" y1="0" x2="0" y2="1">
@@ -230,6 +248,7 @@ export function CashFlowChart({
                   height={chartH}
                   fill="transparent"
                   onMouseEnter={() => setHoverIdx(idx)}
+                  onClick={() => setHoverIdx((prev) => (prev === idx ? null : idx))}
                 />
               );
             })}
