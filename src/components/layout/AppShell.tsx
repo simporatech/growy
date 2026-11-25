@@ -2,12 +2,15 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import {
   ArrowLeftRight,
+  Cloud,
+  CloudOff,
   HandCoins,
   Landmark,
   LayoutDashboard,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  RefreshCw,
   Repeat,
   Settings,
   Sparkles,
@@ -124,7 +127,7 @@ function SidebarTooltip({ label, show }: { label: string; show: boolean }) {
 }
 
 export function AppShell() {
-  const { user, signOut, updateUserPreferences, applyAutoBilling } = useAuth();
+  const { user, syncStatus, signOut, updateUserPreferences, applyAutoBilling } = useAuth();
   const { currency: globalCurrency, convertBetween } = useCurrency();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
@@ -319,6 +322,29 @@ export function AppShell() {
               {collapsed ? (
                 <div className="w-full flex flex-col items-center gap-2">
                   <div
+                    title={
+                      syncStatus === 'synced'
+                        ? t('sync.synced')
+                        : syncStatus === 'syncing'
+                          ? t('sync.syncing')
+                          : syncStatus === 'offline'
+                            ? t('sync.offline')
+                            : t('sync.localOnly')
+                    }
+                    className="flex h-8 w-11 mx-auto items-center justify-center rounded-xl border border-white/[0.06] bg-black/25"
+                  >
+                    {syncStatus === 'syncing' ? (
+                      <RefreshCw className="h-3.5 w-3.5 text-dynamic-accent animate-spin" />
+                    ) : syncStatus === 'offline' ? (
+                      <CloudOff className="h-3.5 w-3.5 text-coral" />
+                    ) : syncStatus === 'synced' ? (
+                      <Cloud className="h-3.5 w-3.5 text-dynamic-accent" />
+                    ) : (
+                      <Cloud className="h-3.5 w-3.5 text-[#8E8E93]" />
+                    )}
+                  </div>
+
+                  <div
                     title={user?.fullName}
                     className="bg-dynamic-accent-soft text-dynamic-accent border-dynamic-accent flex h-11 w-11 mx-auto items-center justify-center rounded-2xl border text-[13px] font-display font-semibold select-none"
                   >
@@ -350,7 +376,39 @@ export function AppShell() {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center justify-between gap-2 rounded-2xl border border-white/[0.06] bg-black/25 p-2.5">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.06] bg-black/20 px-3 py-1.5 text-xs">
+                    <span className="inline-flex items-center gap-1.5 text-[#B8B8BE]">
+                      {syncStatus === 'syncing' ? (
+                        <RefreshCw className="h-3.5 w-3.5 text-dynamic-accent animate-spin shrink-0" />
+                      ) : syncStatus === 'offline' ? (
+                        <CloudOff className="h-3.5 w-3.5 text-coral shrink-0" />
+                      ) : syncStatus === 'synced' ? (
+                        <Cloud className="h-3.5 w-3.5 text-dynamic-accent shrink-0" />
+                      ) : (
+                        <Cloud className="h-3.5 w-3.5 text-[#8E8E93] shrink-0" />
+                      )}
+                      <span
+                        className={
+                          syncStatus === 'offline'
+                            ? 'text-coral font-medium'
+                            : syncStatus === 'synced' || syncStatus === 'syncing'
+                              ? 'text-white/90 font-medium'
+                              : 'text-[#8E8E93]'
+                        }
+                      >
+                        {syncStatus === 'synced'
+                          ? t('sync.synced')
+                          : syncStatus === 'syncing'
+                            ? t('sync.syncing')
+                            : syncStatus === 'offline'
+                              ? t('sync.offline')
+                              : t('sync.localOnly')}
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2 rounded-2xl border border-white/[0.06] bg-black/25 p-2.5">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="bg-dynamic-accent-soft text-dynamic-accent border-dynamic-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-xs font-display font-semibold">
                       {getInitials(user?.fullName ?? 'G')}
@@ -385,6 +443,7 @@ export function AppShell() {
                       <LogOut className="h-4 w-4 shrink-0" />
                     </button>
                   </div>
+                </div>
                 </div>
               )}
 

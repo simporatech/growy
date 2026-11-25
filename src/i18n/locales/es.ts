@@ -690,5 +690,11 @@ export const es: Record<TranslationKey, string> = {
   'period.custom': 'Rango personalizado...',
   'period.fromLabel': 'Desde',
   'period.toLabel': 'Hasta',
+
+  // Cloud Sync Status
+  'sync.synced': 'Sincronizado',
+  'sync.syncing': 'Sincronizando...',
+  'sync.offline': 'Sin conexión · Local',
+  'sync.localOnly': 'Solo local',
 };
 

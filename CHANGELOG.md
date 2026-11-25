@@ -3,6 +3,11 @@
 > Historical log of milestones, refactors, and fixes. For the active architectural map, see [CONTEXT.md](./CONTEXT.md).
 
 ## 2026-11-25
+- **Supabase Cloud Sync (Single-Vault JSONB Local-First Architecture):**
+  - Created idempotent `supabase/schema.sql` (`public.user_vaults` table, strict per-user RLS policies, and `handle_user_vault_updated_at` trigger) and `.env.example`.
+  - Installed `@supabase/supabase-js` and built `src/lib/supabase.ts` + `src/utils/cloudSync.ts` (`fetchCloudVault`, `pushCloudVault`, `reconcileCloudAndLocal`, `deleteCloudVault`).
+  - Integrated Supabase Auth (`signUp`, `signInWithPassword`, `signOut`, `onAuthStateChange`) and `1500ms` debounced JSONB cloud sync (with `visibilitychange`, `beforeunload`, and `online` flush) into `AuthContext.tsx`, while preserving 0ms local-first responsiveness and seamless local-only fallback.
+  - Added a subtle **Cloud Sync Status Pill** (`Synced` / `Syncing...` / `Offline · Local` / `Local Only`) to `AppShell.tsx` sidebar footer with EN/ES translations.
 - **Dual-Trajectory Financial Projection Chart (`projectionEngine.ts`, `ProjectionChartCard.tsx`):**
   - Replaced the 6-month bar chart with a calendar-anchored **Dual-Trajectory Projection Chart** featuring `This Month` (day-by-day `1..lastDay`) and `This Year` (`Jan..Dec`) horizon toggles, 3 dynamic KPI pills (`Projected End`, `Budgets & Goals Target`, `Projected Net Change`), a vertical `Today` divider separating elapsed actual history from forward projections, a solid `Realistic Pace` curve (recurring schedules with smart loan clamping + unsettled loan due dates + variable spending pace), and a dashed `#38BDF8` `Budgets & Goals Plan` curve with interactive hover tooltips.
 - **Unified Time-Period Filter, 6-Month Projection Chart & Overview Typography Audit:**

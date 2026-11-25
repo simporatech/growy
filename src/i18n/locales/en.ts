@@ -688,6 +688,12 @@ export const en = {
   'period.custom': 'Custom Range...',
   'period.fromLabel': 'From',
   'period.toLabel': 'To',
+
+  // Cloud Sync Status
+  'sync.synced': 'Synced',
+  'sync.syncing': 'Syncing...',
+  'sync.offline': 'Offline · Local',
+  'sync.localOnly': 'Local Only',
 } as const;
 
 export type TranslationKey = keyof typeof en;

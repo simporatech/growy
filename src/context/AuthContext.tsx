@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import {
+  CloudSyncStatus,
+  deleteCloudVault,
+  pushCloudVault,
+  reconcileCloudAndLocal,
+} from '../utils/cloudSync';
 import {
   Account,
   AccountsSortOption,
@@ -62,6 +69,7 @@ interface CreateAccountInput {
 interface AuthContextValue {
   user: UserProfile | null;
   isLoading: boolean;
+  syncStatus: CloudSyncStatus;
   signIn: (email: string, pin: string) => Promise<void>;
   createAccount: (input: CreateAccountInput) => Promise<void>;
   updateUserPreferences: (partialPrefs: Partial<UserPreferences>) => void;
@@ -220,14 +228,137 @@ function toPublicProfile(record: StoredUserRecord): UserProfile {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>(
+    isSupabaseConfigured ? (typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'synced') : 'local_only'
+  );
 
+  const latestUserRef = useRef<UserProfile | null>(null);
+  const skipNextPushRef = useRef(false);
+  const dirtyRef = useRef(false);
+  const debounceTimerRef = useRef<number | null>(null);
+
+  latestUserRef.current = user;
+
+  const flushCloudSync = useCallback(async (profileOverride?: UserProfile | null) => {
+    const target = profileOverride ?? latestUserRef.current;
+    if (!isSupabaseConfigured || !supabase || !target) return;
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    setSyncStatus('syncing');
+    try {
+      await pushCloudVault(target);
+      dirtyRef.current = false;
+      setSyncStatus('synced');
+    } catch {
+      setSyncStatus('offline');
+    }
+  }, []);
+
+  const runCloudReconcile = useCallback(async (localProfile: UserProfile) => {
+    if (!isSupabaseConfigured || !supabase) return;
+    setSyncStatus('syncing');
+    try {
+      const res = await reconcileCloudAndLocal(localProfile);
+      if (res.action === 'hydrated_from_cloud' && res.payload) {
+        const mergedRecord: StoredUserRecord = {
+          id: localProfile.id,
+          fullName:
+            typeof res.payload.fullName === 'string' && res.payload.fullName.trim()
+              ? res.payload.fullName
+              : localProfile.fullName,
+          email: localProfile.email,
+          passwordHash: readUserRecord(localProfile.id)?.passwordHash ?? '',
+          createdAt:
+            typeof res.payload.createdAt === 'string'
+              ? res.payload.createdAt
+              : localProfile.createdAt,
+          preferences: res.payload.preferences
+            ? { ...localProfile.preferences, ...res.payload.preferences }
+            : localProfile.preferences,
+          data: {
+            accounts: Array.isArray(res.payload.data?.accounts) ? res.payload.data.accounts : [],
+            transactions: Array.isArray(res.payload.data?.transactions)
+              ? res.payload.data.transactions
+              : [],
+            budgets: Array.isArray(res.payload.data?.budgets) ? res.payload.data.budgets : [],
+            subscriptions: Array.isArray(res.payload.data?.subscriptions)
+              ? res.payload.data.subscriptions
+              : [],
+            loans: Array.isArray(res.payload.data?.loans) ? res.payload.data.loans : [],
+          },
+        };
+        writeUserRecord(mergedRecord);
+        skipNextPushRef.current = true;
+        dirtyRef.current = false;
+        setUser(toPublicProfile(mergedRecord));
+      }
+      setSyncStatus('synced');
+    } catch {
+      setSyncStatus('offline');
+    }
+  }, []);
+
+  const ensureLocalRecordForCloudUser = useCallback(
+    (cloudUser: { id: string; email?: string; user_metadata?: Record<string, unknown> }): StoredUserRecord => {
+      const existing = readUserRecord(cloudUser.id);
+      if (existing) return existing;
+
+      const detected = detectUserEnvironment();
+      const email = normalizeEmail(cloudUser.email ?? '');
+      const metaName =
+        typeof cloudUser.user_metadata?.full_name === 'string'
+          ? cloudUser.user_metadata.full_name.trim()
+          : '';
+      const created: StoredUserRecord = {
+        id: cloudUser.id,
+        fullName: metaName || email.split('@')[0] || 'Growy User',
+        email,
+        passwordHash: '',
+        createdAt: new Date().toISOString(),
+        preferences: {
+          accentColor: DEFAULT_PREFERENCES.accentColor,
+          currency: detected.currency,
+          language: detected.language,
+          timezone: detected.timezone,
+          sidebarCollapsed: DEFAULT_PREFERENCES.sidebarCollapsed,
+          accountsSortBy: DEFAULT_PREFERENCES.accountsSortBy,
+          accountsSortDirection: DEFAULT_PREFERENCES.accountsSortDirection,
+        },
+        data: {
+          accounts: [],
+          transactions: [],
+          budgets: [],
+          subscriptions: [],
+          loans: [],
+        },
+      };
+      writeUserRecord(created);
+      const index = readEmailIndex();
+      if (email) {
+        index[email] = cloudUser.id;
+        writeEmailIndex(index);
+      }
+      return created;
+    },
+    []
+  );
+
+  // Instant local load (0ms) + Supabase session reconciliation
   useEffect(() => {
+    let active = true;
     try {
       const sessionId = localStorage.getItem(SESSION_KEY);
       if (sessionId) {
         const record = readUserRecord(sessionId);
         if (record) {
-          setUser(toPublicProfile(record));
+          skipNextPushRef.current = true;
+          const profile = toPublicProfile(record);
+          setUser(profile);
+          if (isSupabaseConfigured) {
+            void runCloudReconcile(profile);
+          }
         } else {
           localStorage.removeItem(SESSION_KEY);
         }
@@ -235,68 +366,242 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
 
-  const signIn = useCallback(async (email: string, pin: string) => {
-    const normalized = normalizeEmail(email);
-    const index = readEmailIndex();
-    const userId = index[normalized];
-    const record = userId ? readUserRecord(userId) : null;
+    if (!isSupabaseConfigured || !supabase) return;
 
-    if (!record) {
-      throw new Error('auth.errorAccountNotFound');
-    }
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active || !data.session?.user) return;
+      const rec = ensureLocalRecordForCloudUser(data.session.user);
+      localStorage.setItem(SESSION_KEY, rec.id);
+      const profile = toPublicProfile(rec);
+      skipNextPushRef.current = true;
+      setUser(profile);
+      void runCloudReconcile(profile);
+    });
 
-    const candidateHash = await hashPassword(pin, normalized);
-    if (candidateHash !== record.passwordHash) {
-      throw new Error('auth.errorWrongPassword');
-    }
+    const { data: authSub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem(SESSION_KEY);
+        setUser(null);
+      } else if (session?.user && event === 'SIGNED_IN') {
+        const rec = ensureLocalRecordForCloudUser(session.user);
+        localStorage.setItem(SESSION_KEY, rec.id);
+        const profile = toPublicProfile(rec);
+        skipNextPushRef.current = true;
+        setUser(profile);
+        void runCloudReconcile(profile);
+      }
+    });
 
-    localStorage.setItem(SESSION_KEY, record.id);
-    setUser(toPublicProfile(record));
-  }, []);
-
-  const createAccount = useCallback(async (input: CreateAccountInput) => {
-    const normalized = normalizeEmail(input.email);
-    const index = readEmailIndex();
-
-    if (index[normalized] && readUserRecord(index[normalized])) {
-      throw new Error('auth.errorAccountExists');
-    }
-
-    const id = crypto.randomUUID();
-    const passwordHash = await hashPassword(input.pin, normalized);
-    const detected = detectUserEnvironment();
-    const record: StoredUserRecord = {
-      id,
-      fullName: input.fullName.trim(),
-      email: normalized,
-      passwordHash,
-      createdAt: new Date().toISOString(),
-      preferences: {
-        accentColor: DEFAULT_PREFERENCES.accentColor,
-        currency: detected.currency,
-        language: input.language === 'es' || input.language === 'en' ? input.language : detected.language,
-        timezone: detected.timezone,
-        sidebarCollapsed: DEFAULT_PREFERENCES.sidebarCollapsed,
-        accountsSortBy: DEFAULT_PREFERENCES.accountsSortBy,
-        accountsSortDirection: DEFAULT_PREFERENCES.accountsSortDirection,
-      },
-      data: {
-        accounts: [],
-        transactions: [],
-        budgets: [],
-        subscriptions: [],
-        loans: [],
-      },
+    return () => {
+      active = false;
+      authSub.subscription.unsubscribe();
     };
+  }, [ensureLocalRecordForCloudUser, runCloudReconcile]);
 
-    writeUserRecord(record);
-    index[normalized] = id;
-    writeEmailIndex(index);
-    localStorage.setItem(SESSION_KEY, id);
-    setUser(toPublicProfile(record));
-  }, []);
+  // Debounced 1500ms cloud upsert on local mutations + visibility/unload/online flush
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user) return;
+
+    if (skipNextPushRef.current) {
+      skipNextPushRef.current = false;
+      return;
+    }
+
+    dirtyRef.current = true;
+    setSyncStatus(typeof navigator !== 'undefined' && !navigator.onLine ? 'offline' : 'syncing');
+
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = window.setTimeout(() => {
+      void flushCloudSync(user);
+    }, 1500);
+
+    return () => {
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [user, flushCloudSync]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return;
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden' && dirtyRef.current) {
+        void flushCloudSync();
+      }
+    };
+    const handleBeforeUnload = () => {
+      if (dirtyRef.current) {
+        void flushCloudSync();
+      }
+    };
+    const handleOnline = () => {
+      if (dirtyRef.current) {
+        void flushCloudSync();
+      } else if (latestUserRef.current) {
+        void runCloudReconcile(latestUserRef.current);
+      }
+    };
+    const handleOffline = () => setSyncStatus('offline');
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [flushCloudSync, runCloudReconcile]);
+
+  const signIn = useCallback(
+    async (email: string, pin: string) => {
+      const normalized = normalizeEmail(email);
+
+      if (isSupabaseConfigured && supabase) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: normalized,
+          password: pin,
+        });
+        if (error || !data.user) {
+          throw new Error('auth.errorWrongPassword');
+        }
+        const rec = ensureLocalRecordForCloudUser(data.user);
+        localStorage.setItem(SESSION_KEY, rec.id);
+        const profile = toPublicProfile(rec);
+        skipNextPushRef.current = true;
+        setUser(profile);
+        void runCloudReconcile(profile);
+        return;
+      }
+
+      const index = readEmailIndex();
+      const userId = index[normalized];
+      const record = userId ? readUserRecord(userId) : null;
+
+      if (!record) {
+        throw new Error('auth.errorAccountNotFound');
+      }
+
+      const candidateHash = await hashPassword(pin, normalized);
+      if (candidateHash !== record.passwordHash) {
+        throw new Error('auth.errorWrongPassword');
+      }
+
+      localStorage.setItem(SESSION_KEY, record.id);
+      setUser(toPublicProfile(record));
+    },
+    [ensureLocalRecordForCloudUser, runCloudReconcile]
+  );
+
+  const createAccount = useCallback(
+    async (input: CreateAccountInput) => {
+      const normalized = normalizeEmail(input.email);
+      const detected = detectUserEnvironment();
+
+      if (isSupabaseConfigured && supabase) {
+        const { data, error } = await supabase.auth.signUp({
+          email: normalized,
+          password: input.pin,
+          options: {
+            data: { full_name: input.fullName.trim() },
+          },
+        });
+        if (error) {
+          if (error.message.toLowerCase().includes('already')) {
+            throw new Error('auth.errorAccountExists');
+          }
+          throw new Error(error.message);
+        }
+        if (!data.user) {
+          throw new Error('auth.errorAccountExists');
+        }
+
+        const record: StoredUserRecord = {
+          id: data.user.id,
+          fullName: input.fullName.trim(),
+          email: normalized,
+          passwordHash: '',
+          createdAt: new Date().toISOString(),
+          preferences: {
+            accentColor: DEFAULT_PREFERENCES.accentColor,
+            currency: detected.currency,
+            language:
+              input.language === 'es' || input.language === 'en'
+                ? input.language
+                : detected.language,
+            timezone: detected.timezone,
+            sidebarCollapsed: DEFAULT_PREFERENCES.sidebarCollapsed,
+            accountsSortBy: DEFAULT_PREFERENCES.accountsSortBy,
+            accountsSortDirection: DEFAULT_PREFERENCES.accountsSortDirection,
+          },
+          data: {
+            accounts: [],
+            transactions: [],
+            budgets: [],
+            subscriptions: [],
+            loans: [],
+          },
+        };
+        writeUserRecord(record);
+        const index = readEmailIndex();
+        index[normalized] = record.id;
+        writeEmailIndex(index);
+        localStorage.setItem(SESSION_KEY, record.id);
+        const profile = toPublicProfile(record);
+        skipNextPushRef.current = true;
+        setUser(profile);
+        if (data.session) {
+          void flushCloudSync(profile);
+        }
+        return;
+      }
+
+      const index = readEmailIndex();
+      if (index[normalized] && readUserRecord(index[normalized])) {
+        throw new Error('auth.errorAccountExists');
+      }
+
+      const id = crypto.randomUUID();
+      const passwordHash = await hashPassword(input.pin, normalized);
+      const record: StoredUserRecord = {
+        id,
+        fullName: input.fullName.trim(),
+        email: normalized,
+        passwordHash,
+        createdAt: new Date().toISOString(),
+        preferences: {
+          accentColor: DEFAULT_PREFERENCES.accentColor,
+          currency: detected.currency,
+          language:
+            input.language === 'es' || input.language === 'en' ? input.language : detected.language,
+          timezone: detected.timezone,
+          sidebarCollapsed: DEFAULT_PREFERENCES.sidebarCollapsed,
+          accountsSortBy: DEFAULT_PREFERENCES.accountsSortBy,
+          accountsSortDirection: DEFAULT_PREFERENCES.accountsSortDirection,
+        },
+        data: {
+          accounts: [],
+          transactions: [],
+          budgets: [],
+          subscriptions: [],
+          loans: [],
+        },
+      };
+
+      writeUserRecord(record);
+      index[normalized] = id;
+      writeEmailIndex(index);
+      localStorage.setItem(SESSION_KEY, id);
+      setUser(toPublicProfile(record));
+    },
+    [flushCloudSync]
+  );
 
   const updateUserPreferences = useCallback((partialPrefs: Partial<UserPreferences>) => {
     setUser((prev) => {
@@ -1002,12 +1307,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = useCallback(() => {
+    if (dirtyRef.current) {
+      void flushCloudSync();
+    }
+    if (isSupabaseConfigured && supabase) {
+      void supabase.auth.signOut();
+    }
     localStorage.removeItem(SESSION_KEY);
     setUser(null);
-  }, []);
+  }, [flushCloudSync]);
 
   const deleteAccount = useCallback(() => {
     if (!user) return;
+    if (isSupabaseConfigured && supabase) {
+      void deleteCloudVault(user.id).finally(() => {
+        void supabase?.auth.signOut();
+      });
+    }
     localStorage.removeItem(getUserStorageKey(user.id));
     const index = readEmailIndex();
     const normalized = normalizeEmail(user.email);
@@ -1024,6 +1340,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         isLoading,
+        syncStatus,
         signIn,
         createAccount,
         updateUserPreferences,
