@@ -1,0 +1,14 @@
+# Local AI context (isolated from git/GitHub)
+CONTEXT.md
+
+# Dependencies & build
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Environment & logs
+.env
+.env.*
+*.log
+
