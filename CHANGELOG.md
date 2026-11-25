@@ -3,6 +3,8 @@
 > Historical log of milestones, refactors, and fixes. For the active architectural map, see [CONTEXT.md](./CONTEXT.md).
 
 ## 2026-11-25
+- **Glass Card Top-Edge Border Polish (`src/index.css`):**
+  - Removed `border-t-white/[0.15]` from `.glass-card` so all static header and card containers render a calm, uniform `border-white/[0.08]` perimeter without a top-edge light streak.
 - **Supabase Auth Error Surfacing & 6-Character Password Validation:**
   - Enforced minimum 6-character password validation on both Sign In and Create Account in `AuthScreen.tsx`.
   - Mapped exact Supabase Auth error codes/messages (`User already registered`, `Password should be at least 6 characters`, `Invalid login credentials`, `Email not confirmed`, and raw fallback messages) in `AuthContext.tsx` and `AuthScreen.tsx`, plus a clear email-confirmation notice when `signUp` returns `session === null`.

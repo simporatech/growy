@@ -64,7 +64,7 @@
   }
 
   .glass-card {
-    @apply bg-[#333333]/40 backdrop-blur-xl border border-white/[0.08] border-t-white/[0.15] rounded-3xl;
+    @apply bg-[#333333]/40 backdrop-blur-xl border border-white/[0.08] rounded-3xl;
     box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.28);
   }
 }
