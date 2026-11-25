@@ -3,6 +3,8 @@
 > Historical log of milestones, refactors, and fixes. For the active architectural map, see [CONTEXT.md](./CONTEXT.md).
 
 ## 2026-11-25
+- **Global CSS & Component Specular Hover Audit (`src/index.css`):**
+  - Audited `src/index.css`, `index.html`, `tailwind.config.js`, and `src/` components and confirmed zero `::before`/`::after` or Tailwind `before:`/`after:` top-edge specular hover light-streak rules exist (`.glass-card` already uses a uniform `border-white/[0.08]` perimeter).
 - **Glass Card Top-Edge Border Polish (`src/index.css`):**
   - Removed `border-t-white/[0.15]` from `.glass-card` so all static header and card containers render a calm, uniform `border-white/[0.08]` perimeter without a top-edge light streak.
 - **Supabase Auth Error Surfacing & 6-Character Password Validation:**
