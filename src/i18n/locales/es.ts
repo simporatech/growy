@@ -25,10 +25,13 @@ export const es: Record<TranslationKey, string> = {
   'auth.creatingAccountButton': 'Creando cuenta...',
   'auth.errorNameLength': 'Ingresa tu nombre completo (al menos 2 caracteres).',
   'auth.errorInvalidEmail': 'Ingresa un correo electrónico válido.',
-  'auth.errorPasswordLength': 'La contraseña debe tener al menos 4 caracteres.',
+  'auth.errorPasswordLength': 'La contraseña debe tener al menos 6 caracteres.',
   'auth.errorAccountNotFound': 'No existe una cuenta con este correo. Crea una cuenta para comenzar.',
   'auth.errorWrongPassword': 'Contraseña incorrecta. Verifica tu entrada e intenta de nuevo.',
-  'auth.errorAccountExists': 'Ya existe una cuenta con este correo. Cambia a Iniciar sesión.',
+  'auth.errorInvalidCredentials': 'Correo o contraseña incorrectos.',
+  'auth.errorEmailNotConfirmed': 'Confirma tu correo electrónico antes de iniciar sesión.',
+  'auth.errorAccountExists': 'Ya existe una cuenta con este correo. Intenta iniciar sesión.',
+  'auth.noticeConfirmEmail': '¡Cuenta creada! Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.',
   'auth.errorGeneric': 'No se pudo continuar. Intenta de nuevo.',
 
   // Navigation

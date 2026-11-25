@@ -459,6 +459,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [flushCloudSync, runCloudReconcile]);
 
+  const mapSupabaseAuthError = (error: { message?: string; code?: string }): Error => {
+    const msg = (error.message ?? '').toLowerCase();
+    const code = (error.code ?? '').toLowerCase();
+
+    if (
+      msg.includes('user already registered') ||
+      msg.includes('already been registered') ||
+      code === 'user_already_exists'
+    ) {
+      return new Error('auth.errorAccountExists');
+    }
+    if (
+      msg.includes('password should be at least 6') ||
+      msg.includes('weak_password') ||
+      code === 'weak_password'
+    ) {
+      return new Error('auth.errorPasswordLength');
+    }
+    if (msg.includes('invalid login credentials') || code === 'invalid_credentials') {
+      return new Error('auth.errorInvalidCredentials');
+    }
+    if (msg.includes('email not confirmed') || code === 'email_not_confirmed') {
+      return new Error('auth.errorEmailNotConfirmed');
+    }
+    return new Error(error.message?.trim() || 'auth.errorGeneric');
+  };
+
   const signIn = useCallback(
     async (email: string, pin: string) => {
       const normalized = normalizeEmail(email);
@@ -469,7 +496,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           password: pin,
         });
         if (error || !data.user) {
-          throw new Error('auth.errorWrongPassword');
+          throw error ? mapSupabaseAuthError(error) : new Error('auth.errorInvalidCredentials');
         }
         const rec = ensureLocalRecordForCloudUser(data.user);
         localStorage.setItem(SESSION_KEY, rec.id);
@@ -513,13 +540,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         });
         if (error) {
-          if (error.message.toLowerCase().includes('already')) {
-            throw new Error('auth.errorAccountExists');
-          }
-          throw new Error(error.message);
+          throw mapSupabaseAuthError(error);
         }
         if (!data.user) {
-          throw new Error('auth.errorAccountExists');
+          throw new Error('auth.errorGeneric');
         }
 
         const record: StoredUserRecord = {
@@ -552,13 +576,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const index = readEmailIndex();
         index[normalized] = record.id;
         writeEmailIndex(index);
+
+        if (!data.session) {
+          throw new Error('auth.noticeConfirmEmail');
+        }
+
         localStorage.setItem(SESSION_KEY, record.id);
         const profile = toPublicProfile(record);
         skipNextPushRef.current = true;
         setUser(profile);
-        if (data.session) {
-          void flushCloudSync(profile);
-        }
+        void flushCloudSync(profile);
         return;
       }
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
-import { AlertCircle, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Locale, useLanguage } from '../../i18n/LanguageContext';
 import { TranslationKey } from '../../i18n/locales/en';
@@ -23,6 +23,9 @@ const PILL_SPRING = {
 const KNOWN_ERROR_KEYS = new Set<string>([
   'auth.errorAccountNotFound',
   'auth.errorWrongPassword',
+  'auth.errorInvalidCredentials',
+  'auth.errorEmailNotConfirmed',
+  'auth.errorPasswordLength',
   'auth.errorAccountExists',
   'auth.errorGeneric',
 ]);
@@ -38,11 +41,13 @@ export function AuthScreen() {
   const [showPin, setShowPin] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [shakeCount, setShakeCount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoSrc, setLogoSrc] = useState('/assets/brand/growy-logo.svg');
 
   const triggerError = (message: string) => {
+    setNotice(null);
     setError(message);
     setShakeCount((c) => c + 1);
   };
@@ -51,6 +56,7 @@ export function AuthScreen() {
     if (nextMode === mode) return;
     setMode(nextMode);
     setError(null);
+    setNotice(null);
   };
 
   const validateForm = (): string | null => {
@@ -61,7 +67,7 @@ export function AuthScreen() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       return t('auth.errorInvalidEmail');
     }
-    if (pin.length < 4) {
+    if (pin.length < 6) {
       return t('auth.errorPasswordLength');
     }
     return null;
@@ -70,6 +76,7 @@ export function AuthScreen() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setNotice(null);
 
     const validationError = validateForm();
     if (validationError) {
@@ -85,8 +92,16 @@ export function AuthScreen() {
         await createAccount({ fullName, email, pin, language: locale });
       }
     } catch (err) {
-      if (err instanceof Error && KNOWN_ERROR_KEYS.has(err.message)) {
-        triggerError(t(err.message as TranslationKey));
+      if (err instanceof Error) {
+        if (err.message === 'auth.noticeConfirmEmail') {
+          setNotice(t('auth.noticeConfirmEmail'));
+        } else if (KNOWN_ERROR_KEYS.has(err.message)) {
+          triggerError(t(err.message as TranslationKey));
+        } else if (err.message.trim()) {
+          triggerError(err.message);
+        } else {
+          triggerError(t('auth.errorGeneric'));
+        }
       } else {
         triggerError(t('auth.errorGeneric'));
       }
@@ -245,9 +260,9 @@ export function AuthScreen() {
                 })}
               </motion.div>
 
-              {/* Error Banner */}
+              {/* Error / Confirmation Banner */}
               <AnimatePresence initial={false}>
-                {error && (
+                {(error || notice) && (
                   <motion.div
                     layout
                     initial={{ opacity: 0, y: -6, height: 0 }}
@@ -256,13 +271,23 @@ export function AuthScreen() {
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className="overflow-hidden"
                   >
-                    <div
-                      role="alert"
-                      className="mb-5 flex items-start gap-2.5 rounded-2xl border border-coral/30 bg-coral/10 px-3.5 py-3 text-xs leading-relaxed text-coral"
-                    >
-                      <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                      <span>{error}</span>
-                    </div>
+                    {notice ? (
+                      <div
+                        role="status"
+                        className="mb-5 flex items-start gap-2.5 rounded-2xl border border-dynamic-accent bg-dynamic-accent-subtle px-3.5 py-3 text-xs leading-relaxed text-dynamic-accent"
+                      >
+                        <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                        <span>{notice}</span>
+                      </div>
+                    ) : (
+                      <div
+                        role="alert"
+                        className="mb-5 flex items-start gap-2.5 rounded-2xl border border-coral/30 bg-coral/10 px-3.5 py-3 text-xs leading-relaxed text-coral"
+                      >
+                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                        <span>{error}</span>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -3,6 +3,9 @@
 > Historical log of milestones, refactors, and fixes. For the active architectural map, see [CONTEXT.md](./CONTEXT.md).
 
 ## 2026-11-25
+- **Supabase Auth Error Surfacing & 6-Character Password Validation:**
+  - Enforced minimum 6-character password validation on both Sign In and Create Account in `AuthScreen.tsx`.
+  - Mapped exact Supabase Auth error codes/messages (`User already registered`, `Password should be at least 6 characters`, `Invalid login credentials`, `Email not confirmed`, and raw fallback messages) in `AuthContext.tsx` and `AuthScreen.tsx`, plus a clear email-confirmation notice when `signUp` returns `session === null`.
 - **Supabase Cloud Sync (Single-Vault JSONB Local-First Architecture):**
   - Created idempotent `supabase/schema.sql` (`public.user_vaults` table, strict per-user RLS policies, and `handle_user_vault_updated_at` trigger) and `.env.example`.
   - Installed `@supabase/supabase-js` and built `src/lib/supabase.ts` + `src/utils/cloudSync.ts` (`fetchCloudVault`, `pushCloudVault`, `reconcileCloudAndLocal`, `deleteCloudVault`).

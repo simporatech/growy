@@ -23,10 +23,13 @@ export const en = {
   'auth.creatingAccountButton': 'Creating account...',
   'auth.errorNameLength': 'Enter your full name (at least 2 characters).',
   'auth.errorInvalidEmail': 'Enter a valid email address.',
-  'auth.errorPasswordLength': 'Password must be at least 4 characters.',
+  'auth.errorPasswordLength': 'Password must be at least 6 characters.',
   'auth.errorAccountNotFound': 'No account found for this email. Create an account to get started.',
   'auth.errorWrongPassword': 'Incorrect password. Check your entry and try again.',
-  'auth.errorAccountExists': 'An account with this email already exists. Switch to Sign In instead.',
+  'auth.errorInvalidCredentials': 'Incorrect email or password.',
+  'auth.errorEmailNotConfirmed': 'Please confirm your email address before signing in.',
+  'auth.errorAccountExists': 'An account with this email already exists. Try signing in.',
+  'auth.noticeConfirmEmail': 'Account created! Please check your email to confirm your address before signing in.',
   'auth.errorGeneric': 'Unable to continue. Please try again.',
 
   // Navigation
